@@ -7,8 +7,7 @@ module.exports = {
     context: __dirname + '/frontend',
 
     entry: {
-        app: './js/app',
-        marketing: './js/marketing'
+        app: './js/entry'
     },
 
     output: {
@@ -54,17 +53,19 @@ module.exports = {
 
     plugins: [
         new webpack.NoErrorsPlugin(),
+
         //set globals in compiled files
         new webpack.DefinePlugin({
             NODE_ENV: JSON.stringify(NODE_ENV)
-        }),
+        })
+
         //creates file that contains compiled data used in all entry points !!!
         //can be used several times chunks: ["app", "marketing"]
         //we can create base file for build of "common"
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'common',
-            minChunks: 3
-        })
+        //new webpack.optimize.CommonsChunkPlugin({
+        //    name: 'common',
+        //    minChunks: 3
+        //})
     ],
 
     //cdn libraries

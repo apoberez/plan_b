@@ -4,10 +4,10 @@ const webpack = require('webpack');
 console.log('NODE ENV: ' + NODE_ENV + '\n');
 
 module.exports = {
-    context: __dirname + '/frontend',
+    context: __dirname + '/src',
 
     entry: {
-        app: './js/entry'
+        app: './main.tsx'
     },
 
     output: {
@@ -25,7 +25,7 @@ module.exports = {
     //helps to make build faster
     resolve: {
         modulesDirectories: ['node_modules'],
-        extensions: ['', '.js']
+        extensions: ['', '.js', '.ts', '.tsx']
     },
     resolveLoader: {
         modulesDirectories: ['node_modules'],
@@ -37,18 +37,25 @@ module.exports = {
     devtool: (NODE_ENV === 'development' ? 'inline-source-map' : null),
 
     module: {
-        loaders: [{
-            loader: 'babel-loader',
-            test: /\.js$/,
+        loaders: [
+            {
+                loader: 'ts-loader',
+                test: /\.tsx?$/,
+                exclude: /node_modules/
+            },
+            {
+                loader: 'babel-loader',
+                test: /\.js(x?)$/,
 
-            // Skip external libraries
-            exclude: /\/node_modules\//,
+                // Skip external libraries
+                exclude: /\/node_modules\//,
 
-            query: {
-                plugins: ['transform-runtime'],
-                presets: ['es2015', 'stage-0', 'react']
+                query: {
+                    plugins: ['transform-runtime'],
+                    presets: ['es2015', 'stage-0', 'react']
+                }
             }
-        }]
+        ]
     },
 
     plugins: [

@@ -1,62 +1,72 @@
 var webpack = require('webpack');
-
-//module.exports = function (config) {
-//    config.set({
-//        browsers: [ 'Chrome' ], //run in Chrome
-//        singleRun: true, //just run once by default
-//        frameworks: [ 'mocha' ], //use the mocha test framework
-//        files: [
-//            'tests.webpack.js' //just load this file
-//        ],
-//        preprocessors: {
-//            'tests.webpack.js': [ 'webpack', 'sourcemap' ] //preprocess with webpack and our sourcemap loader
-//        },
-//        reporters: [ 'dots' ], //report results in this format
-//        webpack: { //kind of a copy of your webpack config
-//            devtool: 'inline-source-map', //just do inline source maps instead of the default
-//            module: {
-//                loaders: [
-//                    { test: /\.js$/, loader: 'babel-loader' }
-//                ]
-//            }
-//        },
-//        webpackServer: {
-//            noInfo: true //please don't spam the console when running in karma!
-//        }
-//    });
-//};
+var webpackConfig = require('./webpack.config.js');
 
 module.exports = function(config) {
+    // Documentation: https://karma-runner.github.io/0.13/config/configuration-file.html
     config.set({
-        browsers: ['Chrome'],
+        browsers: [ 'Chrome' ],
+
         files: [
-            { pattern: 'tests.webpack.js', watched: false }
+            'test/import-babel-polyfill.js', // This ensures we have the es6 shims in place from babel
+            'test/**/*.tests.ts',
+            'test/**/*.tests.tsx'
         ],
-        frameworks: ['jasmine'],
+
+        port: 9876,
+
+        frameworks: [ 'jasmine'/*, 'phantomjs-shim'*/ ],
+
+        logLevel: config.LOG_INFO, //config.LOG_DEBUG
+
         preprocessors: {
-            'tests.webpack.js': ['webpack']
+            'test/import-babel-polyfill.js': [ 'webpack' ],
+            'src/**/*.{ts,tsx}': [ 'webpack' ],
+            'test/**/*.tests.{ts,tsx}': [ 'webpack' ]
         },
+
         reporters: ['html'],
-        //singleRun: true,
+
         webpack: {
-            module: {
-                loaders: [{
-                    loader: 'babel-loader',
-                    test: /\.js$/,
-
-                    // Skip external libraries
-                    exclude: /\/node_modules\//,
-
-                    query: {
-                        plugins: ['transform-runtime'],
-                        presets: ['es2015', 'stage-0', 'react']
-                    }
-                }]
-            },
-            watch: true
+            devtool: 'eval-source-map', //'inline-source-map',
+            debug: true,
+            module: webpackConfig.module,
+            resolve: webpackConfig.resolve
         },
-        webpackServer: {
-            noInfo: true
+
+        webpackMiddleware: {
+            quiet: true,
+            stats: {
+                colors: true
+            }
+        },
+
+        // reporter options
+        mochaReporter: {
+            colors: {
+                success: 'bgGreen',
+                info: 'cyan',
+                warning: 'bgBlue',
+                error: 'bgRed'
+            }
+        },
+
+        // the default configuration
+        junitReporter: {
+            outputDir: 'test-results', // results will be saved as $outputDir/$browserName.xml
+            outputFile: undefined, // if included, results will be saved as $outputDir/$browserName/$outputFile
+            suite: ''
+        },
+
+        coverageReporter: {
+            reporters:[
+                //{type: 'html', dir:'coverage/'},  // https://github.com/karma-runner/karma-coverage/issues/123
+                {type: 'text'},
+                {type: 'text-summary'}
+            ]
         }
+
+//        webpackServer: {
+//            noInfo: true
+//        }
     });
 };
